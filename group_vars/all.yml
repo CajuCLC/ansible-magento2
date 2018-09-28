@@ -1,0 +1,87 @@
+---
+# Magento Repo API Key and Secret Key
+repo_api_key: YOUR_API_KEY
+repo_secret_key: YOUR_SECRET_KEY
+
+# Which version of Magento to deploy: http://www.magentocommerce.com/download
+# You cal also see release notes here: https://devdocs.magento.com/guides/v2.2/release-notes/bk-release-notes.html
+magento_version: 2.2.6 # STILL TO DO.
+
+# These are the Magento database settings
+magento_db_host: localhost
+magento_db_name: magento
+magento_db_user: magento
+magento_db_password: SomeDBPassword
+
+# You shouldn't need to change this. Not being used at the moment.
+mysql_port: 3306
+
+# This is used for the httpd vhost configuration and folders creation.
+server_hostname: mymagentodomain.com
+
+# Magento Installation
+# Magento Admin info
+magento_admin_first: Admin
+magento_admin_last: Surname
+magento_admin_email: admin@email.com
+magento_admin_user: Admin
+magento_admin_pass: StrongPassword
+
+magento_admin_location: securelocation
+
+# Magento Domain
+magento_domain: http://mymagentodomain.com/
+
+# Timezone can be found here: https://gist.github.com/CajuCLC/0a92e071c331103d0defa7374e92df0a
+magento_timezone: America/Chicago
+
+# Currency codes can be found here: https://gist.github.com/CajuCLC/063fd8b91a1748d5b473d2c062f38bd1
+magento_currency: USD
+
+# Language to be used
+magento_language: en_US
+
+# Magento other configs. Use 0 for no and 1 for yes.
+magento_rewrite: 1
+magento_secure: 0
+magento_secure_admin: 0
+
+# Magento kind of cache. Use db, files or redis.
+magento_session: redis
+
+# Magento Session Redis configuration
+magento_session_redis_host: '127.0.0.1'
+magento_session_redis_port: '6379'
+magento_session_redis_log_level: '3'
+magento_session_redis_db: '2'
+
+# Configure FPC?
+# 0 = No
+# 1 = Yes
+magento_page_cache_install: '1'
+# Magento FPC Redis configuration
+magento_page_cache_redis_host: '127.0.0.1'
+magento_page_cache_redis_port: '6379'
+magento_page_cache_redis_db: '1'
+magento_page_cache_redis_compress_data: '1'
+
+# Configure Backend Cache?
+# 0 = No
+# 1 = Yes
+magento_backend_cache_install: '1'
+# Magento FPC Redis configuration
+magento_backend_cache_redis_host: '127.0.0.1'
+magento_backend_cache_redis_port: '6379'
+magento_backend_cache_redis_db: '0'
+
+# Select a Magento mode: https://devdocs.magento.com/guides/v2.2/config-guide/bootstrap/magento-modes.html
+# Leave default if you don't know.
+magento_mode: default
+
+# sFTP user
+web_user: magento
+
+# Select the PHP version you want to use. Make sure you check Magento requirements. PHP 7.2 will be supported only by Magento 2.3.
+# Requirements: https://devdocs.magento.com/guides/v2.2/install-gde/system-requirements-tech.html
+# Don't add dots. If PHP 7.0, use 70. If 7.1 use 71. If 7.2 use 72.
+php_version: 71

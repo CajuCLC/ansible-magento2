@@ -1,0 +1,23 @@
+---
+- name: Install Redis
+  yum:
+    name: redis
+    enablerepo: epel
+    state: present
+
+- name: Change Redis configuration
+  shell: |
+    sudo sed -i 's/bind 127.0.0.1/# bind 127.0.0.1/' /etc/redis.conf
+    sudo sed -i 's/# unixsocket \/tmp\/redis.sock/unixsocket \/tmp\/redis.sock/' /etc/redis.conf
+    sudo sed -i 's/# unixsocketperm 700/unixsocketperm 755/' /etc/redis.conf
+    sudo sed -i 's/save 900/# save 900/' /etc/redis.conf
+    sudo sed -i 's/save 300/# save 300/' /etc/redis.conf
+    sudo sed -i 's/save 60/# save 60/' /etc/redis.conf
+    sudo echo "maxmemory 1500mb" >> /etc/redis.conf
+    sudo echo "maxmemory-policy allkeys-lru" >> /etc/redis.conf
+
+- name: Start Redis Service
+  service:
+    name: redis
+    state: started
+    enabled: true

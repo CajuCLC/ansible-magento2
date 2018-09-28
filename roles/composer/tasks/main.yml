@@ -1,0 +1,24 @@
+---
+- name: Download composer installer
+  get_url:
+    url: https://getcomposer.org/installer
+    dest: /tmp/composer-installer
+    mode: 0755
+
+- name: Install composer using PHP
+  shell: php composer-installer
+  args:
+    chdir: /tmp/
+
+- name: Move composer file to /user/local/bin
+  shell: mv composer.phar /usr/local/bin/composer
+  args:
+    chdir: /tmp/
+
+- name: Create symbolic link
+  file:
+    src: /usr/local/bin/composer
+    dest: /usr/bin/composer
+    owner: root
+    group: root
+    state: link

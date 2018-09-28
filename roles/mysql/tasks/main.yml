@@ -1,0 +1,36 @@
+---
+- name: Install MySQL 5.7 from EPEL
+  yum:
+    name: "{{ item }}"
+    state: present
+    enablerepo: epel
+  with_items:
+   - mysql57-server
+   - MySQL-python27
+   - libselinux-python
+   - libsemanage-python
+
+- name: Create Mysql configuration file
+  template:
+    src: my.cnf.j2
+    dest: /etc/my.cnf
+  notify:
+  - restart mysql
+
+- name: Start Mysql Service
+  service:
+    name: mysqld
+    state: started
+    enabled: true
+
+- name: Create DB user for Magento
+  mysql_user:
+    name: "{{ magento_db_user }}"
+    password: "{{ magento_db_password }}"
+    priv: '*.*:ALL'
+    state: present
+
+- name: Create DB schema for Magento
+  mysql_db:
+    name: "{{ magento_db_name }}"
+    state: present

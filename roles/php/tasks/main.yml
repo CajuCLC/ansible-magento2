@@ -1,0 +1,39 @@
+---
+- name: Install php and deps
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - php{{ php_version }}
+    - php{{ php_version }}-ctype
+    - php{{ php_version }}-curl
+    - php{{ php_version }}-dom
+    - php{{ php_version }}-gd
+    - php{{ php_version }}-intl
+    - php{{ php_version }}-mbstring
+    - php{{ php_version }}-hash
+    - php{{ php_version }}-openssl
+    - php{{ php_version }}-simplexml
+    - php{{ php_version }}-soap
+    - php{{ php_version }}-spl
+    - php{{ php_version }}-libxml
+    - php{{ php_version }}-xsl
+    - php{{ php_version }}-json
+    - php{{ php_version }}-iconv
+    - php{{ php_version }}-mcrypt
+    - php{{ php_version }}-bcmath
+    - php{{ php_version }}-pdo_mysql
+    - php{{ php_version }}-redis
+    - vim
+    - git
+
+- name: Bump Memory Limit
+  lineinfile:
+    path: /etc/php.ini
+    regexp: 'memory_limit = 128M'
+    line: 'memory_limit = 2048M'
+
+- name: Restart HTTPD to get use memory_limit
+  service:
+    name: httpd
+    state: restarted

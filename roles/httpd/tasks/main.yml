@@ -1,0 +1,43 @@
+---
+- name: Install httpd
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - httpd24
+    - httpd24-tools
+    - mod24_ssl
+
+- name: Create vhost Folder
+  command: mkdir -p /etc/httpd/vhost.d/
+
+- name: Copy httpd configuration for ports
+  template:
+    src: ports.conf
+    dest: /etc/httpd/ports.conf
+  notify: restart httpd
+
+- name: Copy httpd configuration for domain
+  template:
+    src: vhost.conf
+    dest: /etc/httpd/vhost.d/{{ server_hostname }}.conf
+
+- name: Backup original httpd configuration
+  command: mv /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf_original
+
+- name: Copy httpd configuration
+  template:
+    src: httpd.conf
+    dest: /etc/httpd/conf/httpd.conf
+
+- name: httpd Start initial
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Add user "web_user"
+  user: name="{{ web_user }}" groups=apache append=yes home=/var/www/html/
+
+- name: Change ownership of folder to user created and group apache
+  file: path=/var/www/ owner="{{ web_user }}" group=apache state=directory recurse=yes

@@ -1,0 +1,117 @@
+---
+- name: Set your Magento repo global config using composer
+  command: composer global config http-basic.repo.magento.com "{{ repo_api_key }}" "{{ repo_secret_key }}"
+
+- name: Create the Magento project using composer
+  command: composer create-project --repository=https://repo.magento.com/ magento/project-community-edition /var/www/html/
+
+- name: Install Magento
+  shell: |
+    php bin/magento setup:install \
+    --base-url="{{ magento_domain }}" \
+    --db-host="{{ magento_db_host }}" \
+    --db-name="{{ magento_db_name }}" \
+    --db-user="{{ magento_db_user }}" \
+    --db-password="{{ magento_db_password }}" \
+    --backend-frontname="{{ magento_admin_location }}" \
+    --admin-firstname="{{ magento_admin_first }}" \
+    --admin-lastname="{{ magento_admin_last }}" \
+    --admin-email="{{ magento_admin_email }}" \
+    --admin-user="{{ magento_admin_user }}" \
+    --admin-password="{{ magento_admin_pass }}" \
+    --language="{{ magento_language }}" \
+    --currency="{{ magento_currency }}" \
+    --timezone="{{ magento_timezone }}" \
+    --use-rewrites="{{ magento_rewrite }}" \
+    --use-secure="{{ magento_secure }}" \
+    --use-secure-admin="{{ magento_secure_admin }}" \
+    --session-save="{{ magento_session }}"
+  args:
+    chdir: /var/www/html/
+  when: magento_session != "redis"
+
+- name: Install Magento Session Redis
+  shell: |
+    php bin/magento setup:install \
+    --base-url="{{ magento_domain }}" \
+    --db-host="{{ magento_db_host }}" \
+    --db-name="{{ magento_db_name }}" \
+    --db-user="{{ magento_db_user }}" \
+    --db-password="{{ magento_db_password }}" \
+    --backend-frontname="{{ magento_admin_location }}" \
+    --admin-firstname="{{ magento_admin_first }}" \
+    --admin-lastname="{{ magento_admin_last }}" \
+    --admin-email="{{ magento_admin_email }}" \
+    --admin-user="{{ magento_admin_user }}" \
+    --admin-password="{{ magento_admin_pass }}" \
+    --language="{{ magento_language }}" \
+    --currency="{{ magento_currency }}" \
+    --timezone="{{ magento_timezone }}" \
+    --use-rewrites="{{ magento_rewrite }}" \
+    --use-secure="{{ magento_secure }}" \
+    --use-secure-admin="{{ magento_secure_admin }}" \
+    --session-save="{{ magento_session }}" \
+    --session-save-redis-host="{{ magento_session_redis_host }}" \
+    --session-save-redis-port="{{ magento_session_redis_port }}" \
+    --session-save-redis-log-level="{{ magento_session_redis_log_level }}" \
+    --session-save-redis-db="{{ magento_session_redis_db }}"
+  args:
+    chdir: /var/www/html/
+  when: magento_session == 'redis'
+
+- name: Set files permissions to g+w
+  shell: find var generated vendor pub/static pub/media app/etc -type f -exec chmod g+w {} \;
+  args:
+    chdir: /var/www/html/
+
+- name: Set directories to g+ws
+  shell: find var generated vendor pub/static pub/media app/etc -type d -exec chmod g+ws {} \;
+  args:
+    chdir: /var/www/html/
+
+- name: Set permissions to magento-apache
+  file:
+    path: /var/www/html/
+    owner: magento
+    group: apache
+    recurse: yes
+
+- name: Set permission u+x to bin/magento
+  file:
+    path: /var/www/html/bin/magento
+    owner: magento
+    group: apache
+    mode: u+x
+
+- name: Change Magento mode
+  shell: bin/magento deploy:mode:set "{{ magento_mode }}"
+  args:
+    chdir: /var/www/html/
+  when: magento_mode != 'default'
+
+- name: Configure FPC with Redis
+  shell: bin/magento setup:config:set --page-cache=redis --page-cache-redis-server="{{ magento_page_cache_redis_host }}" --page-cache-redis-port="{{ magento_page_cache_redis_port }}" --page-cache-redis-db="{{ magento_page_cache_redis_db }}" --page-cache-redis-compress-data="{{ magento_page_cache_redis_compress_data }}"
+  args:
+    chdir: /var/www/html/
+  when: magento_page_cache_install == '1'
+
+- name: Configure Backend Cache with Redis
+  shell: bin/magento setup:config:set --cache-backend=redis --cache-backend-redis-server="{{ magento_backend_cache_redis_host }}" --cache-backend-redis-port="{{ magento_backend_cache_redis_port }}" --cache-backend-redis-db="{{ magento_backend_cache_redis_db }}"
+  args:
+    chdir: /var/www/html/
+  when: magento_backend_cache_install == '1'
+
+- name: Set up the static content
+  shell: bin/magento setup:static-content:deploy -f
+  args:
+    chdir: /var/www/html/
+
+- name: Reindex Magento
+  shell: bin/magento indexer:reindex
+  args:
+    chdir: /var/www/html/
+
+- name: Flush all caches
+  shell: bin/magento cache:flush
+  args:
+    chdir: /var/www/html/
